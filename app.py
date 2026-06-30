@@ -1,6 +1,7 @@
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+import streamlit.components.v1 as components
 import yfinance as yf
 from datetime import date, timedelta
 
@@ -19,6 +20,17 @@ FACTS = [
 
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(page_title="Stock Explorer", layout="wide", page_icon="📈")
+
+# Disable pinch-zoom on mobile so the layout stays fixed
+components.html("""
+<script>
+(function() {
+    var meta = parent.document.querySelector('meta[name="viewport"]');
+    if (meta) meta.setAttribute('content',
+        'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+})();
+</script>
+""", height=0)
 
 # ── Around Design System ──────────────────────────────────────────────────────
 st.markdown("""
@@ -58,36 +70,50 @@ h1, h2, h3,
 
 /* ── Mobile responsive (≤ 768 px) ───────────────────────────────── */
 @media (max-width: 768px) {
-    /* Metric cards and streak cards: wrap to 2-per-row instead of overflowing */
-    [data-testid="stHorizontalBlock"] {
-        flex-wrap: wrap !important;
-        gap: 8px !important;
+    /* Lock the page — no horizontal scroll, no blank right space */
+    html, body, .stApp, .main {
+        overflow-x: hidden !important;
+        max-width: 100vw !important;
     }
-    [data-testid="column"] {
-        min-width: 130px !important;
-        flex: 1 1 130px !important;
+    .main .block-container {
+        max-width: 100% !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        padding-top: 1.5rem !important;
+        box-sizing: border-box !important;
     }
 
-    /* Keep fact + 🔄 button on the SAME row — don't let the button wrap */
+    /* KPI cards and streak cards: 2-per-row wrap */
+    [data-testid="stHorizontalBlock"] {
+        flex-wrap: wrap !important;
+    }
+    [data-testid="column"] {
+        min-width: calc(50% - 0.5rem) !important;
+        flex: 1 1 calc(50% - 0.5rem) !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Keep fact + 🔄 button on the same row */
     [data-testid="stHorizontalBlock"]:has([data-testid="stButton"]) {
         flex-wrap: nowrap !important;
-        align-items: center !important;
+        align-items: flex-start !important;
     }
     [data-testid="stHorizontalBlock"]:has([data-testid="stButton"]) [data-testid="column"]:last-child {
         flex: 0 0 auto !important;
         min-width: unset !important;
     }
 
-    /* Smaller headings */
+    /* Headings */
     h1, [data-testid="stMarkdownContainer"] h1 { font-size: 1.4rem !important; }
     h2, [data-testid="stMarkdownContainer"] h2 { font-size: 1.15rem !important; }
     h3, [data-testid="stMarkdownContainer"] h3 { font-size: 1rem !important; }
+    [data-testid="stMetricValue"] { font-size: 1.25rem !important; }
+    [data-testid="stMetricLabel"] { font-size: 10px !important; }
 
-    /* Metric value + label sizing */
-    [data-testid="stMetricValue"]  { font-size: 1.3rem !important; }
-    [data-testid="stMetricLabel"]  { font-size: 10px !important; }
+    /* Charts must never push past viewport */
+    .stPlotlyChart, iframe { max-width: 100% !important; }
 
-    /* Tabs: scroll horizontally rather than clip */
+    /* Tabs: hidden-scrollbar horizontal scroll */
     [data-testid="stTabs"] > div:first-child {
         overflow-x: auto !important;
         -webkit-overflow-scrolling: touch !important;
@@ -95,29 +121,15 @@ h1, h2, h3,
     }
     [data-testid="stTabs"] > div:first-child::-webkit-scrollbar { display: none !important; }
 
-    /* 44 px minimum tap target for buttons (Apple HIG / Material Design) */
+    /* 44 px tap targets */
     [data-testid="stButton"] button {
         min-height: 44px !important;
         min-width: 44px !important;
     }
 
-    /* Tighter lateral padding on the main content area */
-    .main .block-container {
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
-        padding-top: 1.5rem !important;
-    }
-
-    /* Info/success/error banners: reduce padding and font size */
-    [data-testid="stAlert"] {
-        padding: 10px 12px !important;
-        font-size: 0.88rem !important;
-    }
-
-    /* Caption text: slightly smaller */
-    [data-testid="stCaptionContainer"] p {
-        font-size: 0.78rem !important;
-    }
+    /* Banners and captions */
+    [data-testid="stAlert"] { padding: 10px 12px !important; font-size: 0.88rem !important; }
+    [data-testid="stCaptionContainer"] p { font-size: 0.78rem !important; }
 }
 </style>
 """, unsafe_allow_html=True)
