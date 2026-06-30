@@ -55,6 +55,60 @@ h1, h2, h3,
     font-size: 13px;
     color: #475467;
 }
+
+/* ── Mobile responsive (≤ 768 px) ───────────────────────────────── */
+@media (max-width: 768px) {
+    /* Metric cards and streak cards: wrap to 2-per-row instead of overflowing */
+    [data-testid="stHorizontalBlock"] {
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+    [data-testid="column"] {
+        min-width: 130px !important;
+        flex: 1 1 130px !important;
+    }
+
+    /* Smaller headings */
+    h1, [data-testid="stMarkdownContainer"] h1 { font-size: 1.4rem !important; }
+    h2, [data-testid="stMarkdownContainer"] h2 { font-size: 1.15rem !important; }
+    h3, [data-testid="stMarkdownContainer"] h3 { font-size: 1rem !important; }
+
+    /* Metric value + label sizing */
+    [data-testid="stMetricValue"]  { font-size: 1.3rem !important; }
+    [data-testid="stMetricLabel"]  { font-size: 10px !important; }
+
+    /* Tabs: scroll horizontally rather than clip */
+    [data-testid="stTabs"] > div:first-child {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+    }
+    [data-testid="stTabs"] > div:first-child::-webkit-scrollbar { display: none !important; }
+
+    /* 44 px minimum tap target for buttons (Apple HIG / Material Design) */
+    [data-testid="stButton"] button {
+        min-height: 44px !important;
+        min-width: 44px !important;
+    }
+
+    /* Tighter lateral padding on the main content area */
+    .main .block-container {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        padding-top: 1.5rem !important;
+    }
+
+    /* Info/success/error banners: reduce padding and font size */
+    [data-testid="stAlert"] {
+        padding: 10px 12px !important;
+        font-size: 0.88rem !important;
+    }
+
+    /* Caption text: slightly smaller */
+    [data-testid="stCaptionContainer"] p {
+        font-size: 0.78rem !important;
+    }
+}
 </style>
 """, unsafe_allow_html=True)
 
