@@ -4,6 +4,19 @@ import streamlit as st
 import yfinance as yf
 from datetime import date, timedelta
 
+FACTS = [
+    "Apple became the first U.S. company to reach a $1 trillion market cap in August 2018.",
+    "NVIDIA's stock rose over 200% in 2023, driven by the global AI boom.",
+    "Amazon's AWS cloud division generates more operating profit than its entire retail business.",
+    "Microsoft's acquisition of Activision Blizzard in 2023 was the largest gaming deal ever — $69 billion.",
+    "Meta lost over $700 billion in market cap in 2022, only to fully recover — and then some — in 2023.",
+    "Netflix has more than 260 million paid subscribers across 190 countries.",
+    "Google processes over 8.5 billion searches every single day.",
+    "Tesla delivered over 1.8 million vehicles in 2023, a company record.",
+    "The S&P 500 has returned an average of ~10% per year since 1957, before inflation.",
+    "Warren Buffett's Berkshire Hathaway has never paid a dividend — all returns come from share price growth.",
+]
+
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(page_title="Stock Explorer", layout="wide", page_icon="📈")
 
@@ -84,7 +97,11 @@ with st.sidebar:
 
     st.divider()
 
-    invest_amount  = st.number_input("If I invested ($)", min_value=100, value=1_000, step=100)
+    invest_amount = st.number_input(
+        "Hypothetical investment ($)",
+        min_value=100, value=1_000, step=100,
+        help="Enter any dollar amount. Each stock card below will show what that investment would be worth today.",
+    )
     show_benchmark = st.checkbox("📊 vs S&P 500 (SPY)", value=True)
 
 if not chosen:
@@ -125,10 +142,16 @@ spx_growth = (norm["SPY"].iloc[-1] - 1) * 100 if (show_benchmark and "SPY" in no
 
 # ── Header ────────────────────────────────────────────────────────────────────
 st.title("📈 Stock Price Explorer")
-st.info(
-    "Did you know? Apple became the first U.S. company to reach a $1 trillion market cap "
-    "in August 2018 — just months after the start of this dataset."
-)
+
+if "fact_idx" not in st.session_state:
+    st.session_state.fact_idx = 0
+
+fact_col, btn_col = st.columns([11, 1])
+fact_col.info(f"💡 Did you know? {FACTS[st.session_state.fact_idx]}")
+if btn_col.button("🔄", help="Next fact"):
+    st.session_state.fact_idx = (st.session_state.fact_idx + 1) % len(FACTS)
+    st.rerun()
+
 st.caption(
     f"Prices normalised to 1.00 on {start_date.strftime('%b %d, %Y')} · "
     "Data via Yahoo Finance · Any publicly traded ticker supported"
@@ -150,7 +173,7 @@ for col, t in zip(kpi_cols, valid):
         value=f"{norm[t].iloc[-1]:.2f}x",
         delta=f"{growth:+.1f}%",
     )
-    col.caption(f"${invest_amount:,.0f} → ${final_val:,.0f}")
+    col.caption(f"${invest_amount:,.0f} invested → ${final_val:,.0f} today")
 
 best   = max(valid, key=lambda t: norm[t].iloc[-1])
 best_g = (norm[best].iloc[-1] - 1) * 100
@@ -203,6 +226,7 @@ with tab_chart:
         paper_bgcolor="#FCFCFD", plot_bgcolor="#FCFCFD",
         font_family="Inter", showlegend=False, coloraxis_showscale=False,
     )
+    fig_bar.update_traces(hovertemplate="%{x}: %{y:.1f}%<extra></extra>")
     if spx_growth is not None:
         fig_bar.add_hline(
             y=spx_growth, line_dash="dot", line_color="#000",
@@ -273,5 +297,7 @@ with tab_fun:
     fig_vol.update_layout(
         paper_bgcolor="#FCFCFD", plot_bgcolor="#FCFCFD",
         font_family="Inter", showlegend=False, coloraxis_showscale=False,
+        xaxis_tickformat=".1f",
     )
+    fig_vol.update_traces(hovertemplate="%{y}: %{x:.1f}%<extra></extra>")
     st.plotly_chart(fig_vol, use_container_width=True)
