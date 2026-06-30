@@ -68,6 +68,16 @@ h1, h2, h3,
         flex: 1 1 130px !important;
     }
 
+    /* Keep fact + 🔄 button on the SAME row — don't let the button wrap */
+    [data-testid="stHorizontalBlock"]:has([data-testid="stButton"]) {
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+    }
+    [data-testid="stHorizontalBlock"]:has([data-testid="stButton"]) [data-testid="column"]:last-child {
+        flex: 0 0 auto !important;
+        min-width: unset !important;
+    }
+
     /* Smaller headings */
     h1, [data-testid="stMarkdownContainer"] h1 { font-size: 1.4rem !important; }
     h2, [data-testid="stMarkdownContainer"] h2 { font-size: 1.15rem !important; }
