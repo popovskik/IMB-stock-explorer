@@ -251,6 +251,7 @@ with tab_corr:
             aspect="auto",
         )
         fig_corr.update_layout(font_family="Inter", paper_bgcolor="#FCFCFD")
+        fig_corr.update_traces(hovertemplate="%{y} / %{x}: %{z:.2f}<extra></extra>")
         st.plotly_chart(fig_corr, use_container_width=True)
         st.caption(
             "**1.0** = move in perfect lockstep · "
